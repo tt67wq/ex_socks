@@ -7,8 +7,8 @@ defmodule Client do
     [
       name: {:local, :worker},
       worker_module: Client.RemoteWorker,
-      size: 5,
-      max_overflow: 2
+      size: 30,
+      max_overflow: 10
     ]
   end
 
