@@ -12,9 +12,17 @@ defmodule Server.LocalWorker do
   def start(socket), do: GenServer.start(__MODULE__, socket: socket)
 
   def init(socket: socket) do
-    :inet.setopts(socket, active: 1024)
+    :inet.setopts(socket, active: 100)
+    Process.send_after(self(), :reset_active, 1000)
     {:ok, %{socket: socket, pid: nil}}
   end
+
+  def handle_info(:reset_active, state) do
+    :inet.setopts(state.socket, active: 100)
+    Process.send_after(self(), :reset_active, 1000)
+    {:noreply, state}
+  end
+
 
   def handle_info({:tcp, socket, ciphertext}, state) do
     Logger.info("Receive: #{inspect(ciphertext)}")
@@ -91,7 +99,7 @@ defmodule Server.LocalWorker do
 
   defp connect_remote(data, socket) do
     with {ipaddr, port} <- parse_remote_addr(data),
-         {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 1024]),
+         {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 100]),
          {:ok, pid} <- Server.RemoteWorker.start(rsock, socket) do
       :gen_tcp.controlling_process(rsock, pid)
       {:ok, pid}

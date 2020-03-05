@@ -24,8 +24,9 @@ defmodule Client.RemoteWorker do
   def handle_info(:connect, state) do
     Logger.info("Connecting to #{:inet.ntoa(@ip)}:#{@port}")
 
-    case :gen_tcp.connect(@ip, @port, [:binary, active: 1024, packet: 2]) do
+    case :gen_tcp.connect(@ip, @port, [:binary, active: 100, packet: 2]) do
       {:ok, socket} ->
+        Process.send_after(self(), :reset_active, 1000)
         {:noreply, %{state | socket: socket}}
 
       {:error, reason} ->
@@ -37,6 +38,12 @@ defmodule Client.RemoteWorker do
     plaintext = Common.Crypto.aes_decrypt(data, @key, base64: false)
     Logger.info("Receive: #{inspect(plaintext)}")
     :gen_tcp.send(state.local_socket, plaintext)
+    {:noreply, state}
+  end
+
+  def handle_info(:reset_active, state) do
+    :inet.setopts(state.socket, active: 100)
+    Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end
 
