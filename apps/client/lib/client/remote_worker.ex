@@ -2,8 +2,8 @@ defmodule Client.RemoteWorker do
   @moduledoc """
   doc
   """
-  @ip {127, 0, 0, 1}
-  @port 8787
+  @ip {45, 32, 237, 244}
+  @port 8989
   @key "HelloWorld"
 
   require Logger
