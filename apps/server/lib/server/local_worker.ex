@@ -26,8 +26,6 @@ defmodule Server.LocalWorker do
 
   # client流量的处理入口
   def handle_info({:tcp, socket, ciphertext}, state) do
-    Logger.info("Receive: #{inspect(ciphertext)}")
-
     ciphertext
     |> Common.Crypto.aes_decrypt(@key, base64: false)
     |> case do
@@ -64,8 +62,9 @@ defmodule Server.LocalWorker do
             end).()
 
       # 建立连接后的通信数据
-      other ->
-        Server.RemoteWorker.send_message(state.pid, other)
+      data ->
+        Logger.info("Receive: #{inspect(data)}")
+        Server.RemoteWorker.send_message(state.pid, data)
         {:noreply, state}
     end
   end
