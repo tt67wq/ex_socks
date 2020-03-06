@@ -91,7 +91,7 @@ defmodule Server.LocalWorker do
     host_size = 8 * len
 
     hostname = binary_part(addr, 0, len)
-    Logger.debug("hostname: #{hostname}")
+    Logger.info("HostName: #{hostname}")
 
     {:ok, {:hostent, _, _, :inet, 4, [{ip1, ip2, ip3, ip4} | _]}} =
       :inet.gethostbyname(to_charlist(hostname))
@@ -106,6 +106,7 @@ defmodule Server.LocalWorker do
     with {ipaddr, port} <- parse_remote_addr(data),
          {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 500]),
          {:ok, pid} <- Server.RemoteWorker.start(rsock, socket) do
+      Logger.info("Connect to #{inspect(ipaddr)}")
       :gen_tcp.controlling_process(rsock, pid)
       {:ok, pid}
     else
