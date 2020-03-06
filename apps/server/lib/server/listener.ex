@@ -24,6 +24,7 @@ defmodule Server.Listener do
   def handle_info(:accept, %{socket: socket} = state) do
     {:ok, sock} = :gen_tcp.accept(socket)
 
+    # 启动一个客户端数据处理进程
     {:ok, pid} = Server.LocalWorker.start(sock)
     Logger.info("new client established, #{inspect(pid)}")
     :gen_tcp.controlling_process(sock, pid)

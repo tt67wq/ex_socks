@@ -14,11 +14,13 @@ defmodule Client.LocalWorker do
     {:ok, %{socket: socket, pid: pid}}
   end
 
+  # 将本地流量转发至vps
   def handle_info({:tcp, _socket, data}, state) do
     Client.RemoteWorker.send_message(state.pid, data)
     {:noreply, state}
   end
 
+  # 设置流量限额
   def handle_info(:reset_active, state) do
     :inet.setopts(state.socket, active: 100)
     Process.send_after(self(), :reset_active, 1000)

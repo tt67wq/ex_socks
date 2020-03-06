@@ -35,6 +35,7 @@ defmodule Client.RemoteWorker do
     end
   end
 
+  # vps发来的流量解密后发给local worker
   def handle_info({:tcp, _socket, data}, state) do
     plaintext = Common.Crypto.aes_decrypt(data, @key, base64: false)
     Logger.info("Receive: #{inspect(plaintext)}")
@@ -51,6 +52,7 @@ defmodule Client.RemoteWorker do
   def handle_info({:tcp_closed, _}, state), do: {:stop, :normal, state}
   def handle_info({:tcp_error, _}, state), do: {:stop, :normal, state}
 
+  # 流量加密后发向vps
   def handle_cast({:message, message}, state) do
     Logger.info("Send: #{inspect(message)}")
     :ok = :gen_tcp.send(state.socket, Common.Crypto.aes_encrypt(message, @key, base64: false))

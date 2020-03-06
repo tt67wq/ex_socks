@@ -17,23 +17,26 @@ defmodule Server.LocalWorker do
     {:ok, %{socket: socket, pid: nil}}
   end
 
+  # 设置流量限额
   def handle_info(:reset_active, state) do
     :inet.setopts(state.socket, active: 100)
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end
 
-
+  # client流量的处理入口
   def handle_info({:tcp, socket, ciphertext}, state) do
     Logger.info("Receive: #{inspect(ciphertext)}")
 
     ciphertext
     |> Common.Crypto.aes_decrypt(@key, base64: false)
     |> case do
+      # 不鉴权
       <<0x05, 0x01, 0x00>> ->
         encrypt_send(socket, <<0x05, 0x00>>)
         {:noreply, state}
 
+      # 连接的真正的远端ip
       <<0x05, 0x01, 0x00, 0x01, _addr::binary>> = data ->
         data
         |> connect_remote(socket)
@@ -60,6 +63,7 @@ defmodule Server.LocalWorker do
                 {:noreply, state}
             end).()
 
+      # 建立连接后的通信数据
       other ->
         Server.RemoteWorker.send_message(state.pid, other)
         {:noreply, state}
@@ -97,6 +101,7 @@ defmodule Server.LocalWorker do
     {{ip1, ip2, ip3, ip4}, port}
   end
 
+  # 新建一个连接真实服务的socket
   defp connect_remote(data, socket) do
     with {ipaddr, port} <- parse_remote_addr(data),
          {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 100]),
