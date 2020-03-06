@@ -9,7 +9,7 @@ defmodule Client.LocalWorker do
   def start(pid, socket), do: GenServer.start(__MODULE__, socket: socket, pid: pid)
 
   def init(socket: socket, pid: pid) do
-    :inet.setopts(socket, active: 100)
+    :inet.setopts(socket, active: 500)
     Process.send_after(self(), :reset_active, 1000)
     {:ok, %{socket: socket, pid: pid}}
   end
@@ -22,7 +22,7 @@ defmodule Client.LocalWorker do
 
   # 设置流量限额
   def handle_info(:reset_active, state) do
-    :inet.setopts(state.socket, active: 100)
+    :inet.setopts(state.socket, active: 500)
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end

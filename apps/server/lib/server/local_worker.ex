@@ -12,14 +12,14 @@ defmodule Server.LocalWorker do
   def start(socket), do: GenServer.start(__MODULE__, socket: socket)
 
   def init(socket: socket) do
-    :inet.setopts(socket, active: 100)
+    :inet.setopts(socket, active: 500)
     Process.send_after(self(), :reset_active, 1000)
     {:ok, %{socket: socket, pid: nil}}
   end
 
   # 设置流量限额
   def handle_info(:reset_active, state) do
-    :inet.setopts(state.socket, active: 100)
+    :inet.setopts(state.socket, active: 500)
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end
@@ -104,7 +104,7 @@ defmodule Server.LocalWorker do
   # 新建一个连接真实服务的socket
   defp connect_remote(data, socket) do
     with {ipaddr, port} <- parse_remote_addr(data),
-         {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 100]),
+         {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 500]),
          {:ok, pid} <- Server.RemoteWorker.start(rsock, socket) do
       :gen_tcp.controlling_process(rsock, pid)
       {:ok, pid}

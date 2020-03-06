@@ -30,7 +30,7 @@ defmodule Server.RemoteWorker do
   def handle_info({:tcp_error, _}, state), do: {:stop, :normal, state}
 
   def handle_info(:reset_active, state) do
-    :inet.setopts(state.rsock, active: 100)
+    :inet.setopts(state.rsock, active: 500)
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end

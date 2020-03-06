@@ -25,7 +25,7 @@ defmodule Client.RemoteWorker do
   def handle_info(:connect, state) do
     Logger.info("Connecting to #{:inet.ntoa(@ip)}:#{@port}")
 
-    case :gen_tcp.connect(@ip, @port, [:binary, active: 100, packet: 2]) do
+    case :gen_tcp.connect(@ip, @port, [:binary, active: 500, packet: 2]) do
       {:ok, socket} ->
         Process.send_after(self(), :reset_active, 1000)
         {:noreply, %{state | socket: socket}}
@@ -44,7 +44,7 @@ defmodule Client.RemoteWorker do
   end
 
   def handle_info(:reset_active, state) do
-    :inet.setopts(state.socket, active: 100)
+    :inet.setopts(state.socket, active: 500)
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end
