@@ -6,7 +6,7 @@ defmodule Server.RemoteWorker do
   require Logger
   use GenServer
 
-  @key "HelloWorld"
+  @key Application.get_env(:server, :key)
 
   def send_message(pid, message), do: GenServer.cast(pid, {:message, message})
 
@@ -33,7 +33,6 @@ defmodule Server.RemoteWorker do
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end
-
 
   def handle_cast({:message, message}, state) do
     :ok = :gen_tcp.send(state.rsock, message)

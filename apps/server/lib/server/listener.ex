@@ -6,7 +6,7 @@ defmodule Server.Listener do
   require Logger
   use GenServer
 
-  @port 8989
+  @port Application.get_env(:server, :port)
 
   def start_link(args) do
     name = Keyword.get(args, :name, __MODULE__)

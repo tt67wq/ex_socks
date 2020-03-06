@@ -2,12 +2,13 @@ defmodule Client.RemoteWorker do
   @moduledoc """
   doc
   """
-  @ip {45, 32, 237, 244}
-  @port 8989
-  @key "HelloWorld"
 
   require Logger
   use GenServer
+
+  @ip Application.get_env(:client, :remote_host)
+  @port Application.get_env(:client, :remote_port)
+  @key Application.get_env(:client, :key)
 
   def send_message(pid, message), do: GenServer.cast(pid, {:message, message})
   def bind_socket(pid, socket), do: GenServer.cast(pid, {:bind, socket})
