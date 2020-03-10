@@ -15,6 +15,11 @@ defmodule Client.LocalWorker do
   end
 
   # 将本地流量转发至vps
+  def handle_info({:tcp, socket, <<0x05, 0x01, 0x00>>}, state) do
+    :gen_tcp.send(socket, <<0x05, 0x00>>)
+    {:noreply, state}
+  end
+
   def handle_info({:tcp, _socket, data}, state) do
     Client.RemoteWorker.send_message(state.pid, data)
     {:noreply, state}
@@ -26,7 +31,6 @@ defmodule Client.LocalWorker do
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end
-
 
   def handle_info({:tcp_closed, _}, state) do
     Logger.info("Socket closed")

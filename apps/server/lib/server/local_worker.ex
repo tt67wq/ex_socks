@@ -81,28 +81,28 @@ defmodule Server.LocalWorker do
     :gen_tcp.send(socket, Common.Crypto.aes_encrypt(data, @key, base64: false))
   end
 
-  # ip类型
-  defp parse_remote_addr(<<_pre::24, 0x01, ip1, ip2, ip3, ip4, port::16>>),
-    do: {{ip1, ip2, ip3, ip4}, port}
+  # # ip类型
+  # defp parse_remote_addr(<<_pre::24, 0x01, ip1, ip2, ip3, ip4, port::16>>),
+  #   do: {{ip1, ip2, ip3, ip4}, port}
 
-  # hostname类型
-  defp parse_remote_addr(<<_pre::24, 0x03, len, addr::binary>>) do
-    host_size = 8 * len
+  # # hostname类型
+  # defp parse_remote_addr(<<_pre::24, 0x03, len, addr::binary>>) do
+  #   host_size = 8 * len
 
-    hostname = binary_part(addr, 0, len)
-    Logger.info("HostName: #{hostname}")
+  #   hostname = binary_part(addr, 0, len)
+  #   Logger.info("HostName: #{hostname}")
 
-    {:ok, {:hostent, _, _, :inet, 4, [{ip1, ip2, ip3, ip4} | _]}} =
-      :inet.gethostbyname(to_charlist(hostname))
+  #   {:ok, {:hostent, _, _, :inet, 4, [{ip1, ip2, ip3, ip4} | _]}} =
+  #     :inet.gethostbyname(to_charlist(hostname))
 
-    <<_::size(host_size), port::16>> = addr
+  #   <<_::size(host_size), port::16>> = addr
 
-    {{ip1, ip2, ip3, ip4}, port}
-  end
+  #   {{ip1, ip2, ip3, ip4}, port}
+  # end
 
   # 新建一个连接真实服务的socket
   defp connect_remote(data, socket) do
-    with {ipaddr, port} <- parse_remote_addr(data),
+    with {ipaddr, port} <- Server.DnsCache.get_addr(data),
          {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 500]),
          {:ok, pid} <- Server.RemoteWorker.start(rsock, socket) do
       Logger.info("Connect to #{inspect(ipaddr)}")

@@ -5,7 +5,8 @@ defmodule Server do
 
   def start(_type, _args) do
     children = [
-      Server.Listener
+      Server.Listener,
+      Server.DnsCache
     ]
 
     opts = [strategy: :one_for_one, name: Server.Supervisor]
