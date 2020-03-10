@@ -40,32 +40,47 @@ defmodule Server.DnsCache do
 
   def get_addr(<<_pre::24, 0x03, len, addr::binary>>) do
     host_size = 8 * len
+    <<_::size(host_size), port::16>> = addr
 
     hostname = binary_part(addr, 0, len)
     Logger.info("HostName: #{hostname}")
 
-    ipaddr =
-      @server
-      |> get(hostname)
-      |> (fn
-            {:ok, nil} ->
-              ip = gethostbyname(hostname)
-              put(@server, hostname, ip, 300)
-              ip
+    @server
+    |> get(hostname)
+    |> (fn
+          {:ok, nil} ->
+            hostname
+            |> gethostbyname()
+            |> (fn
+                  {:ok, ip} ->
+                    put(@server, hostname, ip, 300)
+                    {ip, port}
 
-            {:ok, ip} ->
-              ip
-          end).()
+                  :error ->
+                    :error
+                end).()
 
-    <<_::size(host_size), port::16>> = addr
-    {ipaddr, port}
+          {:ok, ip} ->
+            {ip, port}
+        end).()
+  end
+
+  def get_addr(data) do
+    Logger.error("Cannot parse ip from #{inspect(data)}")
+    :error
   end
 
   defp gethostbyname(hostname) do
-    {:ok, {:hostent, _, _, :inet, 4, [{ip1, ip2, ip3, ip4} | _]}} =
-      :inet.gethostbyname(to_charlist(hostname))
+    hostname
+    |> to_charlist()
+    |> :inet.gethostbyname()
+    |> (fn
+          {:ok, {:hostent, _, _, :inet, 4, [{ip1, ip2, ip3, ip4} | _]}} ->
+            {:ok, {ip1, ip2, ip3, ip4}}
 
-    {ip1, ip2, ip3, ip4}
+          _ ->
+            :error
+        end).()
   end
 
   def start_link(args) do
