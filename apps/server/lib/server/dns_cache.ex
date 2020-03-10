@@ -28,9 +28,8 @@ defmodule Server.DnsCache do
   use GenServer
   require Logger
 
-  @table_name :ets_cache
+  @table_name :dns_cache
   @beat_delta 1000
-  @server :dns
 
   @doc """
   获取ip地址
@@ -45,7 +44,7 @@ defmodule Server.DnsCache do
     hostname = binary_part(addr, 0, len)
     Logger.info("HostName: #{hostname}")
 
-    @server
+    @table_name
     |> get(hostname)
     |> (fn
           {:ok, nil} ->
@@ -53,7 +52,7 @@ defmodule Server.DnsCache do
             |> gethostbyname()
             |> (fn
                   {:ok, ip} ->
-                    put(@server, hostname, ip, 300)
+                    put(@table_name, hostname, ip, 300)
                     {ip, port}
 
                   :error ->
@@ -84,7 +83,7 @@ defmodule Server.DnsCache do
   end
 
   def start_link(args) do
-    name = Keyword.get(args, :name, @server)
+    name = Keyword.get(args, :name, __MODULE__)
     GenServer.start_link(__MODULE__, args, name: name)
   end
 
