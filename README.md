@@ -32,6 +32,7 @@
 │       ├── lib
 │       │   ├── server
 │       │   │   ├── listener.ex  服务端监听
+│       │   │   ├── dns_cache.ex  dns解析缓存
 │       │   │   ├── local_worker.ex  与client通信socket
 │       │   │   └── remote_worker.ex 处理真正数据请求的socket
 │       │   └── server.ex
