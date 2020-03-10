@@ -37,4 +37,9 @@ defmodule Client.Listener do
     send(self(), :accept)
     {:noreply, state}
   end
+
+  # ignore msg
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
 end

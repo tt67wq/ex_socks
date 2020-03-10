@@ -26,6 +26,7 @@ defmodule Client.MixProject do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       # {:sibling_app_in_umbrella, in_umbrella: true}
       {:poolboy, "~> 1.5.1"},
+      {:logger_file_backend, "~> 0.0.10"},
       {:common, in_umbrella: true}
     ]
   end
