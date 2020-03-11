@@ -15,7 +15,7 @@ defmodule Server.RemoteWorker do
   end
 
   def init(rsock: rsock, lsock: lsock) do
-    Process.send_after(self(), :reset_active, 1000)
+    Process.send_after(self(), :reset_active, 500)
     {:ok, %{rsock: rsock, lsock: lsock}}
   end
 
@@ -30,7 +30,7 @@ defmodule Server.RemoteWorker do
   def handle_info({:tcp_error, _}, state), do: {:stop, :normal, state}
 
   def handle_info(:reset_active, state) do
-    :inet.setopts(state.rsock, active: 500)
+    :inet.setopts(state.rsock, active: 1000)
     Process.send_after(self(), :reset_active, 1000)
     {:noreply, state}
   end

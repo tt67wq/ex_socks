@@ -88,7 +88,7 @@ defmodule Server.LocalWorker do
   # 新建一个连接真实服务的socket
   defp connect_remote(data, socket) do
     with {ipaddr, port} <- Server.DnsCache.get_addr(data),
-         {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 500]),
+         {:ok, rsock} <- :gen_tcp.connect(ipaddr, port, [:binary, active: 1000]),
          {:ok, pid} <- Server.RemoteWorker.start(rsock, socket) do
       Logger.info("Connect to #{inspect(ipaddr)}")
       :gen_tcp.controlling_process(rsock, pid)
