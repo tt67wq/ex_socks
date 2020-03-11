@@ -34,9 +34,16 @@ defmodule Server.DnsCache do
   @doc """
   获取ip地址
   """
+
+  # ipv4
   def get_addr(<<_pre::24, 0x01, ip1, ip2, ip3, ip4, port::16>>),
     do: {{ip1, ip2, ip3, ip4}, port}
 
+  # ipv6
+  def get_addr(<<_pre::24, 0x04, ip1, ip2, ip3, ip4, ip5, ip6, port::16>>),
+    do: {{ip1, ip2, ip3, ip4, ip5, ip6}, port}
+
+  # 域名
   def get_addr(<<_pre::24, 0x03, len, addr::binary>>) do
     host_size = 8 * len
     <<_::size(host_size), port::16>> = addr

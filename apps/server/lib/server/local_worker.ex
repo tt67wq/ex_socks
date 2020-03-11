@@ -36,6 +36,8 @@ defmodule Server.LocalWorker do
 
       # 连接的真正的远端ip
       <<0x05, 0x01, 0x00, 0x01, _addr::binary>> = data ->
+        Logger.info("Receive: #{inspect(data)}")
+
         data
         |> connect_remote(socket)
         |> (fn
@@ -49,6 +51,8 @@ defmodule Server.LocalWorker do
             end).()
 
       <<0x05, 0x01, 0x00, 0x03, _addr::binary>> = data ->
+        Logger.info("Receive: #{inspect(data)}")
+
         data
         |> connect_remote(socket)
         |> (fn
@@ -80,25 +84,6 @@ defmodule Server.LocalWorker do
     Logger.info("Send: #{inspect(data)}")
     :gen_tcp.send(socket, Common.Crypto.aes_encrypt(data, @key, base64: false))
   end
-
-  # # ip类型
-  # defp parse_remote_addr(<<_pre::24, 0x01, ip1, ip2, ip3, ip4, port::16>>),
-  #   do: {{ip1, ip2, ip3, ip4}, port}
-
-  # # hostname类型
-  # defp parse_remote_addr(<<_pre::24, 0x03, len, addr::binary>>) do
-  #   host_size = 8 * len
-
-  #   hostname = binary_part(addr, 0, len)
-  #   Logger.info("HostName: #{hostname}")
-
-  #   {:ok, {:hostent, _, _, :inet, 4, [{ip1, ip2, ip3, ip4} | _]}} =
-  #     :inet.gethostbyname(to_charlist(hostname))
-
-  #   <<_::size(host_size), port::16>> = addr
-
-  #   {{ip1, ip2, ip3, ip4}, port}
-  # end
 
   # 新建一个连接真实服务的socket
   defp connect_remote(data, socket) do
