@@ -33,7 +33,7 @@ defmodule Client.LocalWorker do
   end
 
   def handle_info({:tcp_closed, _}, state) do
-    Logger.info("Socket closed")
+    Logger.warn("Socket closed")
     :poolboy.checkin(:worker, state.pid)
     {:stop, :normal, state}
   end

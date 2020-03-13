@@ -36,7 +36,7 @@ defmodule Server.LocalWorker do
 
       # 连接的真正的远端ip
       <<0x05, 0x01, 0x00, 0x01, _addr::binary>> = data ->
-        Logger.info("Receive: #{inspect(data)}")
+        Logger.debug("Receive: #{inspect(data)}")
 
         data
         |> connect_remote(socket)
@@ -51,7 +51,7 @@ defmodule Server.LocalWorker do
             end).()
 
       <<0x05, 0x01, 0x00, 0x03, _addr::binary>> = data ->
-        Logger.info("Receive: #{inspect(data)}")
+        Logger.debug("Receive: #{inspect(data)}")
 
         data
         |> connect_remote(socket)
@@ -67,21 +67,21 @@ defmodule Server.LocalWorker do
 
       # 建立连接后的通信数据
       data ->
-        Logger.info("Receive: #{inspect(data)}")
+        Logger.debug("Receive: #{inspect(data)}")
         Server.RemoteWorker.send_message(state.pid, data)
         {:noreply, state}
     end
   end
 
   def handle_info({:tcp_closed, _}, state) do
-    Logger.info("Socket closed")
+    Logger.warn("Socket closed")
     {:stop, :normal, state}
   end
 
   def handle_info({:tcp_error, _}, state), do: {:stop, :normal, state}
 
   defp encrypt_send(socket, data) do
-    Logger.info("Send: #{inspect(data)}")
+    Logger.debug("Send: #{inspect(data)}")
     :gen_tcp.send(socket, Common.Crypto.aes_encrypt(data, @key, base64: false))
   end
 

@@ -21,7 +21,7 @@ defmodule Server.RemoteWorker do
 
   # 目标服务发来的流量加密转发至client
   def handle_info({:tcp, _socket, data}, state) do
-    Logger.info("Send: #{inspect(data)}")
+    Logger.debug("Send: #{inspect(data)}")
     :gen_tcp.send(state.lsock, Common.Crypto.aes_encrypt(data, @key, base64: false))
     {:noreply, state}
   end
