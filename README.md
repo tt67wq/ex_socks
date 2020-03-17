@@ -76,7 +76,7 @@
 ```
 config :server,
   port: 8080,
-  key: "tiangoucannothavehourse"
+  key: "tiangoucannothavehouse"
 ```
 
 - Client
@@ -86,6 +86,6 @@ config :client,
   local_port: 1080,
   remote_host: {xx, xx, xx, xx},
   remote_port: 8080,
-  key: "tiangoucannothavehourse"
+  key: "tiangoucannothavehouse"
 
 ```
