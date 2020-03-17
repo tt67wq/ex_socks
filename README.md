@@ -59,12 +59,33 @@
 1. erlang/otp > 21.0
 2. Elixir > 1.8
 
- ***服务端***
+***服务端***
  1. 配置监听端口和密钥，在server/config/config.exs文件中;
  2. 打包发布，执行mix release;
  3. 执行_build/dev/rel/server/bin/server start/daemon。
 
 ***客户端***
-1. 配置本地监听端口、远端ip端口和密钥，在client/config/config.exs文件中;
+ 1. 配置本地监听端口、远端ip端口和密钥，在client/config/config.exs文件中;
  2. 打包发布，执行mix release;
  3. 执行_build/dev/rel/client/bin/client start/daemon。
+ 
+**配置文件例子**
+
+- Server
+
+```
+config :server,
+  port: 8080,
+  key: "tiangoucannothavehourse"
+```
+
+- Client
+
+```
+config :client,
+  local_port: 1080,
+  remote_host: {xx, xx, xx, xx},
+  remote_port: 8080,
+  key: "tiangoucannothavehourse"
+
+```
